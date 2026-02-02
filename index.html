@@ -12,61 +12,127 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(145deg, #1e3a5f 0%, #0d1b2a 100%);
       padding: 20px;
     }
     .container {
       background: white;
-      border-radius: 24px;
-      padding: 40px;
+      border-radius: 28px;
+      padding: 48px 40px;
       text-align: center;
-      max-width: 400px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4);
     }
-    .logo { font-size: 48px; margin-bottom: 16px; }
-    h1 { color: #1a1a2e; margin-bottom: 8px; font-size: 24px; }
-    p { color: #666; margin-bottom: 24px; line-height: 1.5; }
+    .logo {
+      margin-bottom: 8px;
+    }
+    .logo img {
+      width: 120px;
+      height: auto;
+    }
+    h1 {
+      color: #1e3a5f;
+      margin-bottom: 4px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      color: #64748b;
+      font-size: 15px;
+      margin-bottom: 28px;
+    }
     .order-info {
-      background: #f5f5f5;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 24px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 28px;
       text-align: left;
+      border: 1px solid #e2e8f0;
     }
-    .order-info strong { color: #333; }
-    .order-info span { color: #667eea; font-weight: 600; }
+    .order-info p {
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .order-info p:last-child {
+      margin-bottom: 0;
+    }
+    .order-info strong {
+      color: #475569;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .order-info span {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .order-number {
+      color: #1e3a5f;
+    }
+    .status-badge {
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+    .status-badge.ready { background: #fef3c7; color: #d97706; }
+    .status-badge.shipped { background: #ede9fe; color: #7c3aed; }
+    .status-badge.delivered { background: #d1fae5; color: #047857; }
+    .status-badge.cancelled { background: #fee2e2; color: #b91c1c; }
     .btn {
-      display: inline-block;
-      background: #667eea;
+      display: block;
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
       color: white;
-      padding: 14px 32px;
-      border-radius: 12px;
+      padding: 16px 32px;
+      border-radius: 14px;
       text-decoration: none;
       font-weight: 600;
-      transition: transform 0.2s, box-shadow 0.2s;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(30, 58, 95, 0.3);
     }
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 8px 25px rgba(30, 58, 95, 0.4);
     }
-    .fallback { margin-top: 20px; font-size: 14px; color: #999; }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .fallback {
+      margin-top: 24px;
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="logo">📦</div>
-    <h1>ÚtilesYa Delivery</h1>
-    <p>Abriendo la aplicación de delivery...</p>
+    <div class="logo">
+      <img src="/imagenes/logo-transparente-200x157.png" alt="ÚtilesYa">
+    </div>
+    <h1>Delivery</h1>
+    <p class="subtitle">Abriendo la aplicación...</p>
 
     <div id="order-info" class="order-info" style="display: none;">
-      <p><strong>Orden:</strong> <span id="order-number">-</span></p>
-      <p><strong>Estado:</strong> <span id="order-status">-</span></p>
+      <p>
+        <strong>Orden</strong>
+        <span id="order-number" class="order-number">-</span>
+      </p>
+      <p>
+        <strong>Estado</strong>
+        <span id="order-status" class="status-badge">-</span>
+      </p>
     </div>
 
     <a href="#" id="open-app" class="btn">Abrir App</a>
 
     <p class="fallback">
-      Si la app no se abre automáticamente, asegúrate de tenerla instalada.
+      Si la app no se abre automáticamente,<br>asegúrate de tenerla instalada.
     </p>
   </div>
 
@@ -96,11 +162,26 @@
 
     function init() {
       const orderData = parseOrderData();
+      const currentUrl = window.location.href.replace(/#$/, '');
+
+      const appSchemeUrl = currentUrl.replace('https://utilesdeeplink.netlify.app', 'utilesapp://');
 
       if (orderData) {
         document.getElementById('order-info').style.display = 'block';
         document.getElementById('order-number').textContent = '#' + orderData.orderNumber;
-        document.getElementById('order-status').textContent = statusLabels[orderData.status] || orderData.status;
+
+        const statusEl = document.getElementById('order-status');
+        statusEl.textContent = statusLabels[orderData.status] || orderData.status;
+        if (orderData.status) {
+          statusEl.classList.add(orderData.status);
+        }
+      }
+
+      const btn = document.getElementById('open-app');
+      btn.href = appSchemeUrl;
+
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.location.href = appSchemeUrl;
       }
     }
 
